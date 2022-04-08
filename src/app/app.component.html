@@ -24,26 +24,8 @@
   <p>Response:::</p>
 
   <p>Status:::</p>
-  <!--<ng-container *ngIf="started == true">
-    <ng-container *ngIf="(status$|async)?.response?.data?.result != 'Completed' ? getStatus():stop()">
 
-    </ng-container>
-    {{(status$ | async)?.response?.data?.result}}
-  </ng-container>-->
-  {{(subject$ | async)?.data?.result}}
+  <p>{{counter}}: {{status}}</p>
 
 
-
-  <!--<ng-container *ngIf="status$">
-  <div *ngIf="(status$|async)!.response!.data?.result == 'Waiting'">
-    <p>Waiting</p>
-  </div>
-  <div *ngIf="(status$|async)!.response!.data?.result == 'Processing'">
-    <p>Processing</p>
-  </div>
-  <div *ngIf="(status$|async)!.response!.data?.result == 'Completed'">
-    <p>Completed</p>
-  </div>
-  </ng-container>
--->
 </div>

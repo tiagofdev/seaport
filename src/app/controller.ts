@@ -25,8 +25,6 @@ export class Controller {
 
   // This is a reactive approach
 
-
-
   public status$ = () =>
     <Observable<Response>> this.http.get<Response>(`${this.apiUrl}/status`)
       .pipe(
@@ -34,14 +32,22 @@ export class Controller {
         catchError(Controller.handleError)
       );
 
-  public start$ = (): Observable<Response> => {
-      console.log("controler");
-      return this.http.get<Response>(`${this.apiUrl}/start`)
+  public start$ = () =>
+    <Observable<Response>> this.http.get<Response>(`${this.apiUrl}/start`)
         .pipe(
           tap(console.log),
           catchError(Controller.handleError)
         );
-  }
+
+
+  /*public start$ = (): Observable<Response> => {
+    console.log("controler");
+    return this.http.get<Response>(`${this.apiUrl}/start`)
+      .pipe(
+        tap(console.log),
+        catchError(Controller.handleError)
+      );
+  }*/
 
   private static handleError(error: HttpErrorResponse): Observable<never> {
     console.log(error);

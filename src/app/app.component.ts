@@ -1,12 +1,11 @@
 import {Component} from '@angular/core';
 import {NgForm} from "@angular/forms";
-import {async, BehaviorSubject, filter, first, map, Observable, Observer, of, startWith} from "rxjs";
+import {BehaviorSubject, map, Observable, Observer, of, startWith} from "rxjs";
 import {AppState} from "./app-state";
 import {Response} from "./response";
 import {Controller} from "./controller";
 import {DataState} from "./data-state.enum";
 import {catchError} from "rxjs/operators";
-import {HttpClient} from "@angular/common/http";
 
 
 @Component({
@@ -18,16 +17,20 @@ export class AppComponent {
   title = "Seaport Simulation";
   readonly dataState = DataState;
 
-  constructor(private controller: Controller,
-              private http: HttpClient) {
+  constructor(private controller: Controller) {
     this.response$ = new Observable<AppState<Response>>();
     this.status$ = new Observable<AppState<Response>>();
     this.subject$ = new Observable<Response>();
+    this.status = "";
+    this.counter = 0;
   }
   response$: Observable<AppState<Response>>;
   status$: Observable<AppState<Response>>;
   subject$: Observable<Response>;
-  started = false;
+  progress$!: Observable<any>;
+  public response : any;
+  public status : string;
+  public counter : number;
 
   start(): void {
     this.response$ = this.controller.start$()
@@ -40,7 +43,6 @@ export class AppComponent {
           return of({ dataState: DataState.ERROR_STATE, error: err })
         })
       );
-
   }
 
   public delay(n: number){
@@ -49,10 +51,8 @@ export class AppComponent {
     });
   }
 
-
-   async getStatus(): Promise<void> {
-    await this.delay(4);
-
+  async getStatus(): Promise<void> {
+    await this.delay(1);
     this.status$ = this.controller.status$()
       .pipe(
         map(result => {
@@ -63,12 +63,6 @@ export class AppComponent {
           return of({dataState: DataState.ERROR_STATE, error: err})
         })
       );
-  }
-
-  getSubject() : void {
-    console.log("subject: ", this.status)
-    this.subject$ = this.controller.status$();
-
   }
 
 
@@ -96,10 +90,7 @@ export class AppComponent {
       }
     };
   }
-
   // Create a new Observable that will deliver the above sequence
-  // Create a new Observable that will deliver the above sequence
-  progress$!: Observable<any>;
 
   public listen() : void {
     this.progress$ = new Observable(this.sequenceSubscriber);
@@ -112,34 +103,43 @@ export class AppComponent {
       }
     });*/
   }
-  public response : any;
-  public status : any;
-  public process() : void {
-    this.started = true;
 
+  public getSubject() : void {
+    this.subject$ = this.controller.status$();
+    this.subject$.subscribe(response => this.status = response.data.result );
+
+    if (this.status === "Waiting") {console.log("Status: Waiting");}
+    if (this.status === "Processing") {console.log("Status: Processing");}
+    if (this.status === "Completed") {console.log("Status: Completed");}
+  }
+
+  public async process(): Promise<void> {
+    this.status = "";
     this.start();
-    this.response = this.response$.subscribe();
-    console.log("response: ", this.response$);
+    this.response = this.response$.subscribe(); // This is necessary, don't know why
 
-    //this.getStatus().then(r => {});
+    function delay(ms: number) {
+      return new Promise( resolve => setTimeout(resolve, ms) );
+    }
+    this.counter = 0;
     this.getSubject();
+    while( this.status != "Completed" && !this.cancelled ) {
+      await delay(1000);
+      this.counter++;
+      this.getSubject();
+    }
 
-    this.subject$.subscribe(response => this.status = response.data.result);
-    console.log("ffs: ", this.status);
-
-    /*while (this.status != "Completed") {
-
-      this.getStatus().then(r => {});
-      console.log("Updating Status");
-    }*/
 
   }
 
+  public cancelled = false;
   public stop() : void {
-    this.started = false;
-    this.status = "Completed";
+    this.cancelled = true;
+    this.status = "Cancelled";
     this.response.unsubscribe();
-    //this.status.unsubscribe();
+
   }
+
+
 
 }
