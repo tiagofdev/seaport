@@ -25,6 +25,13 @@ export class Controller {
 
   // This is a reactive approach
 
+  public load$ = () =>
+    <Observable<Response>> this.http.get<Response>(`${this.apiUrl}/load`)
+      .pipe(
+        tap(console.log),
+        catchError(Controller.handleError)
+      );
+
   public status$ = () =>
     <Observable<Response>> this.http.get<Response>(`${this.apiUrl}/status`)
       .pipe(
