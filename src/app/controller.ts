@@ -16,17 +16,17 @@ export class Controller {
 
   constructor(private http: HttpClient) { }
 
-  // This is a procedural approach
-  // getTwoSum() : Observable<CustomResponse> {
-  //   return this.http.get<CustomResponse>('http://localhost:8080/twosum');
-  // }
-
   private readonly  apiUrl = 'http://localhost:8080';
-
-  // This is a reactive approach
 
   public load$ = () =>
     <Observable<Response>> this.http.get<Response>(`${this.apiUrl}/load`)
+      .pipe(
+        tap(console.log),
+        catchError(Controller.handleError)
+      );
+
+  public start$ = () =>
+    <Observable<Response>> this.http.get<Response>(`${this.apiUrl}/start`)
       .pipe(
         tap(console.log),
         catchError(Controller.handleError)
@@ -39,12 +39,7 @@ export class Controller {
         catchError(Controller.handleError)
       );
 
-  public start$ = () =>
-    <Observable<Response>> this.http.get<Response>(`${this.apiUrl}/start`)
-        .pipe(
-          tap(console.log),
-          catchError(Controller.handleError)
-        );
+
 
 
   /*public start$ = (): Observable<Response> => {
