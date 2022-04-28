@@ -32,7 +32,7 @@ export class Controller {
         catchError(Controller.handleError)
       );
 
-  public status$ = () =>
+  public getStatus$ = () =>
     <Observable<Response>> this.http.get<Response>(`${this.apiUrl}/status`)
       .pipe(
         tap(console.log),

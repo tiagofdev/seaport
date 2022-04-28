@@ -46,14 +46,12 @@
     <tbody>
       <ng-container *ngFor="let key of data | keyvalue" style="list-style-type: none;">
         <tr>
-        <td>{{key.value.index}}</td>
+        <td>{{key.value.index}}<p style="color:blue;">{{key.value.info}}</p></td>
         <td>{{key.value.type}}</td>
         <td>{{key.value.name}}</td>
         <td>{{key.value.parent}}</td>
         </tr>
-        <tr>
-          <td style="color:blue;" colspan="4">{{key.value.info}}</td>
-        </tr>
+
       </ng-container>
     </tbody>
   </table>
@@ -72,6 +70,8 @@
 
         <button class="btn" style="border:1px solid black;margin-right:16px;"
           (click)="start()" [disabled]="!safeToStart">Start</button>
+        <button class="btn" style="border:1px solid black;margin-right:16px;"
+          (click)="cancel()">Cancel All</button>
         <button class="btn" style="border:1px solid black;margin-right:16px;">Pause All</button>
         <select #portSelect (change)="setSelected(portSelect.value)"
                 aria-label="Port"  class="btn" style="border:1px solid black;height:38px;">
@@ -91,38 +91,82 @@
   <ng-container *ngFor="let port of ports">
     <div class="container-lg" id="{{port.name}}">
       <h3>Port: {{port.name}}</h3>
-      <table class="table">
+      <table class="table table-sm">
         <thead>
           <tr>
             <th scope="col">Ship</th>
             <th scope="col">Dock</th>
-            <th scope="col">Jobs</th>
-            <th scope="col">Cancel</th>
-            <th scope="col">Pause</th>
-            <th scope="col">Progress</th>
-            <th scope="col">Status</th>
+            <th scope="col" style="width: 27%;">Jobs</th>
+            <th style="width:48%;">
+              <table class="table">
+                <tr>
+                  <th style="width:25%">Cancel</th>
+                  <th style="width:25%">Pause</th>
+                  <th style="width:25%">Progress</th>
+                  <th style="width:25%">Status</th>
+                </tr>
+              </table>
+            </th>
+
+
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let ship of ships">
+          <tr *ngFor="let ship of ships" scope="row">
             <ng-container *ngIf="ship.port === port.name">
-              <td>{{ship.name}}</td>
+              <td>{{ship.name}}
+<!--                The status check is not working -->
+                <ng-container *ngIf="ship.shipStatus === stata.DOCKING">
+                  <p><button class="btn" style="border: 1px solid black;background-color: yellow; margin-top:4px;"
+                  >Waiting to dock</button></p>
+                </ng-container>
+                <ng-container *ngIf="ship.shipStatus === stata.ASSIGNING">
+                  <p><button class="btn" style="border: 1px solid black;background-color: orange; margin-top:4px;"
+                  >Assigning dock</button></p>
+                </ng-container>
+                <ng-container *ngIf="ship.shipStatus === stata.DOCKED">
+                  <p><button class="btn" style="border: 1px solid black;background-color: green; margin-top:4px;"
+                  >Docked</button></p>
+                </ng-container>
+                <ng-container *ngIf="ship.shipStatus === stata.DEPARTED">
+                  <p><button class="btn" style="border: 1px solid black;background-color: gray; margin-top:4px;"
+                  >Gone</button></p>
+                </ng-container>
+
+<!--                <p><button class="btn" style="border: 1px solid black;background-color: yellow; margin-top:4px;"-->
+<!--                >{{ship.shipStatus}}</button></p>-->
+              </td>
               <td>{{ship.dock}}</td>
-              <td>
-                <div *ngFor="let job of ship.jobs">
-                  <p>{{job.name}}</p>
-                  <p style="color:blue;"><strong>{{job.duration}}</strong>: {{job.requirements}}</p>
-                </div>
+              <td colspan="7">
+                <table class="table table-sm">
+                  <ng-container *ngFor="let job of ship.jobs">
+                    <tr>
+                      <td style="width: 36%">
+                        {{job.name}}
+                        <p style="color:blue;word-break: break-all">
+                          <strong>{{job.duration}}</strong>: {{job.requirements}}</p>
+                      </td>
+                      <td style="width: 16%"><button class="btn" style="border: 1px solid black;">Cancel</button></td>
+                      <td style="width: 16%"><button class="btn" style="border: 1px solid black;">Pause</button></td>
+                      <td style="width: 16%">
+                        <div class="progress" style="height:34px;border: 1px solid black;margin-right:20%;
+                              padding:0;width:80%;">
+                          <div class="progress-bar " role="progressbar"
+                               [style.width.%]="job.progress" attr.aria-valuenow="{{job.progress}}"
+                               aria-valuemin="0" aria-valuemax="100">{{job.progress}}%</div>
+                        </div>
+                      </td>
+                      <td style="width: 16%"><button class="btn" style="border: 1px solid black;
+                            background-color: yellow">{{job.jobStatus}}</button></td>
+                    </tr>
+                  </ng-container>
+                </table>
               </td>
-              <td><button class="btn" style="border: 1px solid black;">Cancel</button></td>
-              <td><button class="btn" style="border: 1px solid black;">Pause</button></td>
-              <td>
-                <div class="progress" style="height:38px;border: 1px solid black;">
-                  <div class="progress-bar bg-dark" role="progressbar" style="width: 83%" aria-valuenow="83" aria-valuemin="0"
-                       aria-valuemax="100">83%</div>
-                </div>
-              </td>
-              <td><button class="btn" style="border: 1px solid black;background-color: yellow">Status</button></td>
+
+
+
+
+
             </ng-container>
           </tr>
 

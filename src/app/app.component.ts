@@ -9,6 +9,7 @@ import {catchError} from "rxjs/operators";
 import {Thing} from "./thing";
 import {Ship} from "./ship";
 import {Job} from "./job";
+import {Status} from "./status.enum";
 
 
 @Component({
@@ -24,18 +25,23 @@ export class AppComponent {
   // Observers
   private data$ = this.controller.load$();
   public startResponse$: Observable<AppState<Response>>;
-  public status$: Observable<AppState<Response>>;
+  public status$: Observable<Response>;
   public safeToStart : boolean = false;
+  public processing : boolean = true;
+  public continue : boolean = true;
+  public stata = Status;
 
   // Subscribers
   // So apparently this data map subscriber is not working properly as a Map because it was not initialized with a
   // map constructor ??? -.-
   // Because of that, it cannot iterate or execute its methods like get, push, filter etc.
   public dataSubscriber : Map<number, any>;
-  public status : string;
+
 
   // Data Structrues
   public data : Map<string, any>;
+  public status : Map<string, Ship>;
+
   public ships: Ship[] = [];
   public ports: Thing[] = [];
   public jobs: Job[] = [];
@@ -43,11 +49,12 @@ export class AppComponent {
 
   constructor(private controller: Controller) {
     this.startResponse$ = new Observable<AppState<Response>>();
-    this.status$ = new Observable<AppState<Response>>();
+    this.status$ = new Observable<Response>();
 
-    this.status = "";
+    this.status = new Map<string, Ship>();
     this.selectedPort = "";
     this.dataSubscriber = new Map<number, any>();
+
     this.data = new Map<string, any>();
     //this.data = new Map(Object.entries(this.dataSubscriber));
     this.component = true;
@@ -142,6 +149,11 @@ export class AppComponent {
     return new Promise( resolve => setTimeout(resolve, ms) );
   }
 
+  public cancel() : void {
+    this.continue = false;
+    // still have to implement a call to server to cancel and reset
+  }
+
   // This function starts the simulation. Calls the server
   public async start(): Promise<void> {
     this.startResponse$ = this.controller.start$()
@@ -155,50 +167,32 @@ export class AppComponent {
         })
       );
 
+    let start = this.startResponse$.subscribe();
+    while( this.processing && this.continue) {
+      let temp = new Map<number, Ship>();
+      this.status$ = this.controller.getStatus$();
+      // @ts-ignore
+      this.status$.subscribe(response => temp = response.data.ships);
+      await this.delay(1000);
+      this.status = new Map(Object.entries(temp));
 
-    let start : any;
-    this.startResponse$.subscribe(result => start = result.response?.data.result);
-
+      this.getStatus();
+    }
   }
 
-
-
-
-
-
-
-
-
-  public testFunction() : void {
-
-    // How to access map value attributes:
-    //console.log(this.data.get("20000").name);
-
+  public getStatus() : void {
+    this.processing = false;
+    for (let ship of this.ships) {
+      let mapShip = this.status.get(ship.index.toString());
+      if (mapShip!.shipStatus != Status.DEPARTED)
+        this.processing = true;
+      ship.shipStatus = mapShip!.shipStatus;
+      ship.jobs = mapShip!.jobs;
+    }
   }
-
-  /*
-  // Tests
-
-
-  subject$: Observable<Response>;
-  progress$!: Observable<any>;
-  // Tests
-  public response : any;
-
-  public counter : number;
-*/
+    //
 
 /*
-  public getSubject() : void {
-    this.subject$ = this.controller.status$();
-    // @ts-ignore
-    this.subject$.subscribe(response => this.status = response.data.result );
-
-    if (this.status === "Waiting") {console.log("Status: Waiting");}
-    if (this.status === "Processing") {console.log("Status: Processing");}
-    if (this.status === "Completed") {console.log("Status: Completed");}
-  }
-
   public async process(): Promise<void> {
     this.status = "";
     this.start();
@@ -214,6 +208,16 @@ export class AppComponent {
       this.counter++;
       this.getSubject();
     }
+  }
+
+  public getSubject() : void {
+    this.subject$ = this.controller.status$();
+    // @ts-ignore
+    this.subject$.subscribe(response => this.status = response.data.result );
+
+    if (this.status === "Waiting") {console.log("Status: Waiting");}
+    if (this.status === "Processing") {console.log("Status: Processing");}
+    if (this.status === "Completed") {console.log("Status: Completed");}
   }
 
   public cancelled = false;
@@ -261,5 +265,20 @@ export class AppComponent {
     });*!/
   }
   */
+
+  // FOR loop for maps
+  /*for (const [key, value] of this.status) {
+    if (value.shipStatus != Status.DEPARTED) {
+      this.processing = true;
+      break;
+    }
+  }*/
+
+  public testFunction() : void {
+
+    // How to access map value attributes:
+    //console.log(this.data.get("20000").name);
+
+  }
 
 }
