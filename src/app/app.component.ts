@@ -1,6 +1,5 @@
 import {Component} from '@angular/core';
-import {NgForm} from "@angular/forms";
-import {BehaviorSubject, map, Observable, Observer, of, startWith} from "rxjs";
+import {map, Observable, of, startWith} from "rxjs";
 import {AppState} from "./app-state";
 import {Response} from "./response";
 import {Controller} from "./controller";
@@ -26,10 +25,9 @@ export class AppComponent {
   private data$ = this.controller.load$();
   public startResponse$: Observable<AppState<Response>>;
   public status$: Observable<Response>;
-  public safeToStart : boolean = false;
   public processing : boolean = true;
   public continue : boolean = true;
-  public stata = Status;
+  public goFlag : boolean = true;
 
   // Subscribers
   // So apparently this data map subscriber is not working properly as a Map because it was not initialized with a
@@ -46,6 +44,12 @@ export class AppComponent {
   public ports: Thing[] = [];
   public jobs: Job[] = [];
   public selectedPort: string;
+
+  // UI
+  public startButton : string = "Start";
+  public warning : string = "LOADING...";
+  public safeToStart : boolean = false;
+  public safeToCancel : boolean = true;
 
   constructor(private controller: Controller) {
     this.startResponse$ = new Observable<AppState<Response>>();
@@ -90,7 +94,7 @@ export class AppComponent {
         this.ports.push(value);
       }
       else if (keyN >= 30000 && keyN < 50000) {
-        value.jobs = new Array();
+        value.jobs = [];
         if (value.dock === "Any: ") {
           let index = value.parent;
           value.port = this.data.get(index.toString()).name;
@@ -114,10 +118,10 @@ export class AppComponent {
     this.ships.sort((a,b) => (a.parent < b.parent) ? 1 : -1);
 
 
-    //await this.delay(1000);
+    await this.delay(1000);
     this.safeToStart = true;
-    const elem = document.getElementById('warning');
-    elem!.style.display = 'none';
+    this.warning = " ";
+
     //this.setPort();
   }
 
@@ -149,13 +153,40 @@ export class AppComponent {
     return new Promise( resolve => setTimeout(resolve, ms) );
   }
 
-  public cancel() : void {
+  public async cancel() : Promise<void> {
     this.continue = false;
-    // still have to implement a call to server to cancel and reset
+    this.warning = "CANCELED ALL JOBS";
+    const elem = document.getElementById('warning');
+    elem!.style.color = 'red';
+    // Call to server to cancel and reset
+    this.controller.cancelAll$().subscribe();
+
+  }
+
+  public async pauseAll() : Promise<void> {
+    const elem = document.getElementById('warning');
+    if (this.goFlag == true) {
+      this.goFlag = false;
+      this.warning = "PAUSED ALL JOBS";
+      elem!.style.color = 'orange';
+      // Call to server to cancel and reset
+      this.controller.pauseAll$().subscribe();
+    }
+    else {
+      this.goFlag = true;
+      this.warning = " ";
+      elem!.style.color = 'black';
+      // Call to server to cancel and reset
+      this.controller.pauseAll$().subscribe();
+    }
   }
 
   // This function starts the simulation. Calls the server
   public async start(): Promise<void> {
+    this.safeToStart = false;
+    if (this.startButton === "Reload") {
+      location.reload();
+    }
     this.startResponse$ = this.controller.start$()
       .pipe(
         map(result => {
@@ -169,26 +200,35 @@ export class AppComponent {
 
     let start = this.startResponse$.subscribe();
     while( this.processing && this.continue) {
-      let temp = new Map<number, Ship>();
-      this.status$ = this.controller.getStatus$();
-      // @ts-ignore
-      this.status$.subscribe(response => temp = response.data.ships);
-      await this.delay(1000);
-      this.status = new Map(Object.entries(temp));
+      if (this.goFlag) {
+        this.status$ = this.controller.getStatus$();
+        // @ts-ignore
+        this.status$.subscribe(response => this.status = new Map(Object.entries(response.data.ships)) );
+        await this.delay(1000);
 
-      this.getStatus();
+        this.getStatus();
+      }
+      await this.delay(500);
     }
+    this.safeToStart = true;
+    this.startButton = "Reload";
+    console.log("This is the end!");
   }
 
   public getStatus() : void {
     this.processing = false;
     for (let ship of this.ships) {
       let mapShip = this.status.get(ship.index.toString());
-      if (mapShip!.shipStatus != Status.DEPARTED)
+      if (mapShip!.shipStatus.toString() != "DEPARTED") {
         this.processing = true;
+      }
       ship.shipStatus = mapShip!.shipStatus;
       ship.jobs = mapShip!.jobs;
     }
+  }
+
+  public cancelAll() : void {
+
   }
     //
 

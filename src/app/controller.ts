@@ -25,13 +25,6 @@ export class Controller {
         catchError(Controller.handleError)
       );
 
-  public start$ = () =>
-    <Observable<Response>> this.http.get<Response>(`${this.apiUrl}/start`)
-      .pipe(
-        tap(console.log),
-        catchError(Controller.handleError)
-      );
-
   public getStatus$ = () =>
     <Observable<Response>> this.http.get<Response>(`${this.apiUrl}/status`)
       .pipe(
@@ -39,7 +32,26 @@ export class Controller {
         catchError(Controller.handleError)
       );
 
+  public start$ = () =>
+    <Observable<Response>> this.http.get<Response>(`${this.apiUrl}/start`)
+      .pipe(
+        tap(console.log),
+        catchError(Controller.handleError)
+      );
 
+  public cancelAll$ = () =>
+    <Observable<Response>> this.http.get<Response>(`${this.apiUrl}/cancelall`)
+      .pipe(
+        tap(console.log),
+        catchError(Controller.handleError)
+      );
+
+  public pauseAll$ = () =>
+    <Observable<Response>> this.http.get<Response>(`${this.apiUrl}/pauseall`)
+      .pipe(
+        tap(console.log),
+        catchError(Controller.handleError)
+      );
 
 
   /*public start$ = (): Observable<Response> => {
