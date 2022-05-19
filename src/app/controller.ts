@@ -53,6 +53,19 @@ export class Controller {
         catchError(Controller.handleError)
       );
 
+  public cancel$ = (job: number) =>
+    <Observable<Response>> this.http.get<Response>(`${this.apiUrl}/cancel/${job}`)
+      .pipe(
+        tap(console.log),
+        catchError(Controller.handleError)
+      );
+
+  public pause$ = (job: number) =>
+    <Observable<Response>> this.http.get<Response>(`${this.apiUrl}/pause/${job}`)
+      .pipe(
+        tap(console.log),
+        catchError(Controller.handleError)
+      );
 
   /*public start$ = (): Observable<Response> => {
     console.log("controler");

@@ -72,6 +72,7 @@ export class AppComponent {
     // But I only want to execute this once, unless I reload the page
     this.contructMore();
 
+
   }
 
   // The following function is asynchronous, because the dataSubscriber does not load immediately
@@ -121,7 +122,8 @@ export class AppComponent {
     await this.delay(1000);
     this.safeToStart = true;
     this.warning = " ";
-
+    document.getElementById('cancelall')!.style.backgroundColor = 'white';
+    if (this.ports) this.setSelected(this.ports[0].name);
     //this.setPort();
   }
 
@@ -138,7 +140,8 @@ export class AppComponent {
   public setSelected(name: string) : void {
     this.ports.forEach(value => {
       const port = document.getElementById(value.name);
-      if (name === "any" || name === value.name) {
+      //if (name === "any" || name === value.name) { In case I want to show all ports at the same time.
+      if (name === value.name) {
         // @ts-ignore
         port.style.display = "block";
       }
@@ -151,34 +154,6 @@ export class AppComponent {
 
   public delay(ms: number) {
     return new Promise( resolve => setTimeout(resolve, ms) );
-  }
-
-  public async cancel() : Promise<void> {
-    this.continue = false;
-    this.warning = "CANCELED ALL JOBS";
-    const elem = document.getElementById('warning');
-    elem!.style.color = 'red';
-    // Call to server to cancel and reset
-    this.controller.cancelAll$().subscribe();
-
-  }
-
-  public async pauseAll() : Promise<void> {
-    const elem = document.getElementById('warning');
-    if (this.goFlag == true) {
-      this.goFlag = false;
-      this.warning = "PAUSED ALL JOBS";
-      elem!.style.color = 'orange';
-      // Call to server to cancel and reset
-      this.controller.pauseAll$().subscribe();
-    }
-    else {
-      this.goFlag = true;
-      this.warning = " ";
-      elem!.style.color = 'black';
-      // Call to server to cancel and reset
-      this.controller.pauseAll$().subscribe();
-    }
   }
 
   // This function starts the simulation. Calls the server
@@ -227,8 +202,48 @@ export class AppComponent {
     }
   }
 
-  public cancelAll() : void {
+  public async cancelAll() : Promise<void> {
+    this.continue = false;
+    this.warning = "CANCELED ALL JOBS";
+    const elem = document.getElementById('warning');
+    elem!.style.color = 'red';
+    document.getElementById('cancelall')!.style.backgroundColor = 'red';
+    // Call to server to cancel and reset
+    this.controller.cancelAll$().subscribe();
 
+  }
+
+  public async pauseAll() : Promise<void> {
+    const elem = document.getElementById('warning');
+    const button = document.getElementById('pauseall');
+    if (this.goFlag == true) {
+      this.goFlag = false;
+      this.warning = "PAUSED ALL JOBS";
+      elem!.style.color = 'orange';
+      button!.style.backgroundColor = 'orange';
+      // Call to server to cancel and reset
+      this.controller.pauseAll$().subscribe();
+    }
+    else {
+      this.goFlag = true;
+      this.warning = " ";
+      elem!.style.color = 'black';
+      button!.style.backgroundColor = 'white';
+      // Call to server to cancel and reset
+      this.controller.pauseAll$().subscribe();
+    }
+  }
+
+  public cancel(job: number) : void {
+    let id : string = job + 'c';
+    document.getElementById(id)!.style.backgroundColor = 'red';
+    this.controller.cancel$(job).subscribe();
+  }
+
+  public pause(job: number) : void {
+    let id : string = job + 'p';
+    document.getElementById(id)!.style.backgroundColor = 'orange';
+    this.controller.pause$(job).subscribe();
   }
     //
 
