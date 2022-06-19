@@ -18,7 +18,7 @@ import {Status} from "./status.enum";
 })
 export class AppComponent {
   title = "Seaport Simulation";
-  component : boolean; // false = data / true = simulation
+  component : string; // false = data / true = simulation
   readonly dataState = DataState;
 
   // Observers
@@ -61,7 +61,7 @@ export class AppComponent {
 
     this.data = new Map<string, any>();
     //this.data = new Map(Object.entries(this.dataSubscriber));
-    this.component = true;
+    this.component = 'true';
 
     // Unfortunately, this does not work.
     //this.data$.subscribe(response => this.datatest = new Map(Object.entries(response.data.map)) );
@@ -128,11 +128,15 @@ export class AppComponent {
   }
 
   public showData() : void {
-    this.component = false;
+    this.component = 'data';
   }
   public showSimulation() : void {
-    this.component = true;
+    this.component = 'simulation';
 
+  }
+
+  public showDescription() : void {
+    this.component = 'description';
   }
 
   // Yay, it's working, thanks StackOverflow!

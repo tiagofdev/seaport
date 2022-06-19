@@ -13,17 +13,19 @@
         <a class="navbar-brand" href="#" style="font-size:24px;" (click)="showData();">Data </a>
         <a class="navbar-brand" href="#" style="font-size:24px;padding-left:64px;" (click)="showSimulation();"
           >Simulation </a>
+        <a class="navbar-brand" style="font-size:24px;padding-left:64px;" (click)="showDescription();">Challenge</a>
       </div>
     </nav>
+    <ng-container *ngIf="component == 'data' || component == 'simulation'">
     <nav class="navbar navbar-light fixed-top"
          style="clear:both;position: relative;margin-left:0;margin-right:0;background-color: white;
               border-bottom: 1px solid black;">
       <div class="container justify-content-center">
-        <ng-container *ngIf="component == false">
+        <ng-container *ngIf="component == 'data'">
           <button class="btn" style="border:1px solid black;margin-right:16px;">Sort</button>
           <button class="btn" style="border:1px solid black;">Search</button>
         </ng-container>
-        <ng-container *ngIf="component == true">
+        <ng-container *ngIf="component == 'simulation'">
           <button id="start" class="btn" style="border:1px solid black;margin-right:16px;"
                   (click)="start()" [disabled]="!safeToStart">{{startButton}}</button>
           <button id="cancelall" class="btn" style="border:1px solid black;margin-right:16px;"
@@ -45,11 +47,12 @@
       <div class="container-fluid" id="warning" style="margin-top: 10px; justify-content: center;
           align-content: center;text-align: center;">{{warning}}</div>
     </nav>
+    </ng-container>
   </div>
 </div>
 
 <!--Data-->
-<ng-container *ngIf="component == false">
+<ng-container *ngIf="component == 'data'">
 <!--Menu-->
 
 <!--  Table-->
@@ -81,7 +84,7 @@
 </ng-container>
 
 <!--Simulation-->
-<ng-container *ngIf="component == true" >
+<ng-container *ngIf="component == 'simulation'" >
 <!--Menu-->
   <div class="container-lg justify-content-center" style="z-index: 1;">
     <div class="navbar navbar-light fixed-top"
