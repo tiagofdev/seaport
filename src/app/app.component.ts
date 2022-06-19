@@ -249,7 +249,7 @@ export class AppComponent {
     document.getElementById(id)!.style.backgroundColor = 'orange';
     this.controller.pause$(job).subscribe();
   }
-    //
+    // Before overhaul
 
 /*
   public async process(): Promise<void> {
