@@ -1,5 +1,5 @@
 <div class="container-fluid" style="padding:0;position:sticky;top:0px;z-index:2;">
-  <div  class="container-fluid" style="margin:0;padding:0;">
+  <div  class="container-fluid" style="margin:0;padding:0;border-bottom: 1px solid lightgray;">
     <nav class="navbar navbar-light fixed-top bg-primary"
          style="clear:both;position: relative;
                 margin-left:0;margin-right:0;">
@@ -7,19 +7,24 @@
         <a class="navbar-brand"  style="font-size:28px;">Multithreading Seaports</a>
       </div>
     </nav>
-    <nav class="navbar navbar-light fixed-top bg-warning"
-         style="clear:both;position: relative; margin-left:0;margin-right:0;">
-      <div class="container justify-content-center">
-        <a class="navbar-brand" href="#" style="font-size:24px;" (click)="showData();">Data </a>
-        <a class="navbar-brand" href="#" style="font-size:24px;padding-left:64px;" (click)="showSimulation();"
-          >Simulation </a>
-        <a class="navbar-brand" style="font-size:24px;padding-left:64px;" (click)="showDescription();">Challenge</a>
+    <nav class="navbar navbar-light fixed-top"
+         style="clear:both;position: relative; margin-left:0;margin-right:0;background-color: #ffdd44;">
+      <div class="container justify-content-center" style="display: flex; align-content: center;
+        align-items: center; justify-content: center;">
+        <a class="navbar-brand" href="#" style="font-size:24px;padding-left:1em;padding-right:1em;"
+           (click)="showDescription();">Project</a>
+        <a class="navbar-brand" href="#" style="font-size:24px;padding-left:1em;padding-right:1em;"
+           (click)="showSource();">Source</a>
+        <a class="navbar-brand" href="#" style="font-size:24px;padding-left:1em;padding-right:1em;"
+           (click)="showData();">Data </a>
+        <a class="navbar-brand" href="#" style="font-size:24px;padding-left:1em;padding-right:1em;"
+           (click)="showSimulation();">Simulation </a>
+
       </div>
     </nav>
     <ng-container *ngIf="component == 'data' || component == 'simulation'">
     <nav class="navbar navbar-light fixed-top"
-         style="clear:both;position: relative;margin-left:0;margin-right:0;background-color: white;
-              border-bottom: 1px solid black;">
+         style="clear:both;position: relative;margin-left:0;margin-right:0;background-color: white;">
       <div class="container justify-content-center">
         <ng-container *ngIf="component == 'data'">
           <button class="btn" style="border:1px solid black;margin-right:16px;">Sort</button>
@@ -208,7 +213,162 @@
 
 </ng-container>
 
+<ng-container *ngIf="component == 'description'" >
+  <div class="container-lg" style="margin-top:16px;">
+    <div class="card" style=" align-content:center;">
+      <img src="../assets/seaport.jpg" alt="Seaport Photo by Ronan Furuta. Unsplash Photo License:
+      Unsplash photos are made to be used freely. Our license reflects that.
+      All photos can be downloaded and used for free
+      Commercial and non-commercial purposes
+      No permission needed (though attribution is appreciated!)" style="max-height: 36em;">
+      <div class="card-body">
+        <h2 class="card-title">Multithreading Seaports</h2>
+        <p class="card-text">This project simulates multiple threads competing for resources.
+          <br>The solution uses the concept of synchronization to run multiple jobs.
+          <br>Java Collection classes and methods like Semaphores, Thread, Wait and NotifyAll are used.<br>
+          </p>
+      </div>
+    </div>
+    <div style="background-color: #ffdd44; align-content: center;margin-top: 3em; padding: 16px;">
+      <h2 style="text-align: center; margin-bottom: 16px;">Project Overview</h2>
+      <p style="text-align: center;">This graduation project requested the use of Swing components to create a GUI.
+        It is adapted here to use a web framework.</p>
+      <div class="container">
+        <div class="row align-items-start">
+          <div class="col">
+            <div style="width:100%"><i class="bi bi-body-text"></i></div>
+            <div>
+              <h4>Read raw data from a text file</h4>
+            </div>
+          </div>
+          <div class="col">
+            <div style="width:100%"><i class="bi bi-card-list"></i></div>
+            <div>
+              <h4>Create a data structure to sort and search information</h4>
+            </div>
+          </div>
+          <div class="col">
+            <div style="width:100%"><i class="bi bi-bar-chart-steps"></i></div>
+            <div>
+              <h4>Create a thread for each job that needs to be done on a ship</h4>
+            </div>
+          </div>
+          <div class="col">
+            <div style="width:100%"><i class="bi bi-person-badge"></i></div>
+            <div>
+              <h4>Simulate jobs competing for workers(resources)</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
+    <div style="align-content: center;margin-top: 3em;padding: 0;">
+      <h2 style="text-align: center; margin-bottom: 16px;">Technologies Used</h2>
+      <div class="container" style="background-color: #0d6efd;height: 20em;padding:0;margin:0;">
+        <div class="row align-items-start" style="height: 50%; padding: 0;">
+          <div class="col" style="background-color: white; align-content: center;justify-content: center;
+            height:100%;display: flex; align-items: center;">
+            <img src="../assets/javaicon.jpg" style="max-height: 80%;">
+          </div>
+          <div class="col">
+            <div class="container" style="color: white;padding: 16px;">
+              <strong>Frontend</strong>
+              <br><br>
+              <p>Typescript<br>
+                Angular<br>
+                Bootstrap</p>
+            </div>
+          </div>
+          <div class="col" style="background-color: white; align-content: center;height:100%;
+            display: flex;justify-content: center; align-items: center;">
+            <img src="../assets/intellijlogo.jpg" style="max-height: 80%;">
+          </div>
+        </div>
+
+        <div class="row align-items-start" style="height: 50%; padding: 0;">
+          <div class="col">
+            <div class="container" style="color: white; padding: 16px;">
+              <strong>Backend</strong>
+              <br><br>
+              <p>Java
+                <br>Spring Boot</p>
+            </div>
+          </div>
+          <div class="col" style="background-color: white; align-content: center;height:100%;
+            display: flex;justify-content: center;">
+            <img src="../assets/angularlogo.jpg" style="max-height: 100%;">
+          </div>
+          <div class="col">
+            <div class="container" style="color: white; padding: 16px;">
+              <strong>Tools</strong>
+              <br><br>
+              <p>IntelliJ<br>
+                Git</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container" style="margin-top: 3em;">
+      <h2>Requirements and Specifications</h2>
+      <ul class="list-group">
+        <li class="list-group-item">Read the data from a source text file</li>
+        <li class="list-group-item">Create instances of classes and save them in HashMaps</li>
+
+        <li class="list-group-item">All Classes extend Abstract Class Thing
+          <br>Thing has the following fields:
+          <ul>
+            <li>index: int</li>
+            <li>name: String</li>
+            <li>parent: int</li>
+          </ul>
+        </li>
+        <li class="list-group-item">Each class has another class as their parent.
+          <ol>
+            <li>World is the root parent</li>
+            <li>World has Ports</li>
+            <li>Port has Docks, Ships, and Persons</li>
+            <li>Dock has Ships</li>
+            <li>Ship has Jobs</li>
+            <li>PassengerShip extends Ship</li>
+            <li>CargoShip extends Ship</li>
+          </ol>
+        </li>
+        <li class="list-group-item">Person is a worker in a Port. Each person has a single specific skill</li>
+        <li class="list-group-item">Some ships require to be docked at a specific pier, others are open to any
+          free pier.</li>
+        <li class="list-group-item">A dock can only receive one ship at a time.</li>
+        <li class="list-group-item">A job thread should only progress if the ship is docked and the port has
+          available and ready workers.</li>
+        <li class="list-group-item">When all the jobs of a ship are done, the ship should leave the dock,
+          allowing another ship in waiting to dock.</li>
+        <li class="list-group-item">(Mod) Only one job is executed at a time for a particular ship. Eg: If a ship has
+          4 jobs, only one job will progress at a time.</li>
+
+        <li class="list-group-item">Use delays to simulate the progress of each job.</li>
+        <li class="list-group-item">Create GUI buttons to allow a job to be paused or canceled.</li>
+        <li class="list-group-item">Implement a thread for each job that a ship requires
+          <br>(Mod)Automatically create standard jobs of 20s for ships that do not have any jobs</li>
+        <li class="list-group-item">Use the synchronize directive to avoid race conditions and ensure that a dock is
+          performing the jobs for only one ship at a time.</li>
+
+      </ul>
+    </div>
+
+    <div class="container" style="margin-top: 3em;">
+      <h3>UML</h3>
+      <img src="../assets/uml.jpg" style="max-width: 100%;">
+    </div>
+
+  </div>
+
+</ng-container>
+
+<ng-container *ngIf="component == 'source'" >
+  <pre id="output"></pre>
+</ng-container>
 
 <!--
 <br><br><br>

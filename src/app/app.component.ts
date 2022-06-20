@@ -61,7 +61,7 @@ export class AppComponent {
 
     this.data = new Map<string, any>();
     //this.data = new Map(Object.entries(this.dataSubscriber));
-    this.component = 'true';
+    this.component = 'description';
 
     // Unfortunately, this does not work.
     //this.data$.subscribe(response => this.datatest = new Map(Object.entries(response.data.map)) );
@@ -132,11 +132,15 @@ export class AppComponent {
   }
   public showSimulation() : void {
     this.component = 'simulation';
-
   }
 
   public showDescription() : void {
     this.component = 'description';
+  }
+
+  public showSource() : void {
+
+    this.component = 'source';
   }
 
   // Yay, it's working, thanks StackOverflow!
