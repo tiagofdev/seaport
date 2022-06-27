@@ -9,6 +9,7 @@ import {Thing} from "./thing";
 import {Ship} from "./ship";
 import {Job} from "./job";
 import {Status} from "./status.enum";
+import {ActivatedRoute, Router} from "@angular/router";
 
 
 @Component({
@@ -24,10 +25,12 @@ export class AppComponent {
   // Observers
   private data$ = this.controller.load$();
   public startResponse$: Observable<AppState<Response>>;
+  private downloadResponse$ = this.controller.download$();
   public status$: Observable<Response>;
   public processing : boolean = true;
   public continue : boolean = true;
   public goFlag : boolean = true;
+  public file : string = "";
 
   // Subscribers
   // So apparently this data map subscriber is not working properly as a Map because it was not initialized with a
@@ -51,8 +54,11 @@ export class AppComponent {
   public safeToStart : boolean = false;
   public safeToCancel : boolean = true;
 
+
   constructor(private controller: Controller) {
+
     this.startResponse$ = new Observable<AppState<Response>>();
+    //this.downloadResponse$ = new Observable<Response>();
     this.status$ = new Observable<Response>();
 
     this.status = new Map<string, Ship>();
@@ -61,6 +67,7 @@ export class AppComponent {
 
     this.data = new Map<string, any>();
     //this.data = new Map(Object.entries(this.dataSubscriber));
+
     this.component = 'description';
 
     // Unfortunately, this does not work.
@@ -68,10 +75,11 @@ export class AppComponent {
 
     // @ts-ignore
     this.data$.subscribe(response => this.dataSubscriber = response.data.map );
+    // @ts-ignore
+    this.downloadResponse$.subscribe(response => this.file = response.data.result);
 
     // But I only want to execute this once, unless I reload the page
     this.contructMore();
-
 
   }
 
@@ -80,7 +88,7 @@ export class AppComponent {
     /*function delay(ms: number) {
       return new Promise( resolve => setTimeout(resolve, ms) );
     }*/
-    await this.delay(1000);
+    await this.delay(1);
 
     // I have to create a copy of the map in order to filter its results and this does not work in the constructor
     // This has to be executed after the promise/delay
@@ -96,20 +104,27 @@ export class AppComponent {
       }
       else if (keyN >= 30000 && keyN < 50000) {
         value.jobs = [];
+        let ship : Ship;
+        ship = value;
         if (value.dock === "Any: ") {
           let index = value.parent;
-          value.port = this.data.get(index.toString()).name;
+          ship.port = this.data.get(index.toString()).name;
         }
         else {
           let dock = value.parent;
           let port = this.data.get(dock.toString()).parent;
-          value.port = this.data.get(port.toString()).name;
+          ship.port = this.data.get(port.toString()).name;
         }
-        this.ships.push(value as Ship);
+        this.ships.push(ship);
       }
       else if (keyN >= 60000) {
         // This local ship is a reference to the value in the map, no need to push an update back into it.
-        let ship = this.data.get(value.parent.toString());
+        //let ship = this.data.get(value.parent.toString());
+        let ship : Ship;
+
+        // @ts-ignore
+        ship = this.ships.find(element => element.index == value.parent.toString());
+
         ship.jobs.push(value as Job);
         this.jobs.push(value as Job);
       }
@@ -118,34 +133,44 @@ export class AppComponent {
     this.ports.sort((a,b) => (a.index < b.index) ? 1 : -1);
     this.ships.sort((a,b) => (a.parent < b.parent) ? 1 : -1);
 
-
-    await this.delay(1000);
     this.safeToStart = true;
     this.warning = " ";
-    document.getElementById('cancelall')!.style.backgroundColor = 'white';
-    if (this.ports) this.setSelected(this.ports[0].name);
-    //this.setPort();
+
   }
 
   public showData() : void {
     this.component = 'data';
   }
-  public showSimulation() : void {
+
+  public async showSimulation() : Promise <void> {
+    // First I gotta reload the DOM by enabling the simulation component.
     this.component = 'simulation';
+    // Then I gotta add a delay to call the function and change the elements
+    await this.delay(1);
+    this.setSelected(this.ports[0].name);
+
   }
 
   public showDescription() : void {
     this.component = 'description';
   }
 
-  public showSource() : void {
-
+  public async showSource() : Promise <void> {
     this.component = 'source';
+    await this.delay(1);
+    const output = document.getElementById('output');
+    // @ts-ignore
+    output.innerHTML = this.file;
+  }
+
+  public showCode() : void {
+    this.component = 'code';
   }
 
   // Yay, it's working, thanks StackOverflow!
   // Change which ports to display during simulation
   public setSelected(name: string) : void {
+
     this.ports.forEach(value => {
       const port = document.getElementById(value.name);
       //if (name === "any" || name === value.name) { In case I want to show all ports at the same time.
@@ -168,7 +193,12 @@ export class AppComponent {
   public async start(): Promise<void> {
     this.safeToStart = false;
     if (this.startButton === "Reload") {
-      location.reload();
+
+      if (typeof document.getElementById('cancelall') != null) {
+        document.getElementById('cancelall')!.style.backgroundColor = 'white';
+      }
+      await this.delay(1);
+      window.location.reload();
     }
     this.startResponse$ = this.controller.start$()
       .pipe(

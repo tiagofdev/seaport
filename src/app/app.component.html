@@ -16,9 +16,11 @@
         <a class="navbar-brand" href="#" style="font-size:24px;padding-left:1em;padding-right:1em;"
            (click)="showSource();">Source</a>
         <a class="navbar-brand" href="#" style="font-size:24px;padding-left:1em;padding-right:1em;"
-           (click)="showData();">Data </a>
+           (click)="showCode();">Code</a>
         <a class="navbar-brand" href="#" style="font-size:24px;padding-left:1em;padding-right:1em;"
-           (click)="showSimulation();">Simulation </a>
+           (click)="showData();">Data</a>
+        <a class="navbar-brand" href="#" style="font-size:24px;padding-left:1em;padding-right:1em;"
+           (click)="showSimulation();">Simulation</a>
 
       </div>
     </nav>
@@ -368,6 +370,10 @@
 
 <ng-container *ngIf="component == 'source'" >
   <pre id="output"></pre>
+</ng-container>
+
+<ng-container *ngIf="component == 'code'" >
+  <a href="#">GitHub</a>
 </ng-container>
 
 <!--
