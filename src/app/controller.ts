@@ -74,6 +74,13 @@ export class Controller {
         catchError(Controller.handleError)
       );
 
+  public photo$ = () =>
+    <Observable<Response>> this.http.get<Response>(`${this.apiUrl}/photo`)
+      .pipe(
+        tap(console.log),
+        catchError(Controller.handleError)
+      );
+
   /*public start$ = (): Observable<Response> => {
     console.log("controler");
     return this.http.get<Response>(`${this.apiUrl}/start`)

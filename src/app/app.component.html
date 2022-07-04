@@ -1,54 +1,104 @@
-<div class="container-fluid" style="padding:0;position:sticky;top:0px;z-index:2;">
-  <div  class="container-fluid" style="margin:0;padding:0;border-bottom: 1px solid lightgray;">
+<div class="container-fluid" style="padding:0;position:sticky;top:0;z-index:2;">
+  <div  class="container-fluid" style="margin:0;padding:0;
+            box-shadow: 0px 2px 3px #0d6efd;">
     <nav class="navbar navbar-light fixed-top bg-primary"
-         style="clear:both;position: relative;
-                margin-left:0;margin-right:0;">
+         style="clear:both; position:relative; margin-left:0; margin-right:0; padding:0;">
       <div class="container justify-content-center">
-        <a class="navbar-brand"  style="font-size:28px;">Multithreading Seaports</a>
+        <a class="navbar-brand"  style="font-size:2rem;">Multithreading Seaports</a>
       </div>
     </nav>
     <nav class="navbar navbar-light fixed-top"
-         style="clear:both;position: relative; margin-left:0;margin-right:0;background-color: #ffdd44;">
+         style="clear:both;position: relative; margin-left:0;margin-right:0;background-color: #ffdd44; padding:0;">
       <div class="container justify-content-center" style="display: flex; align-content: center;
-        align-items: center; justify-content: center;">
-        <a class="navbar-brand" href="#" style="font-size:24px;padding-left:1em;padding-right:1em;"
+        align-items: center; justify-content: center; font-size:2em; height:1.5em;">
+        <a class="navbar-brand col-auto" href="#" style="padding:4px;"
            (click)="showDescription();">Project</a>
-        <a class="navbar-brand" href="#" style="font-size:24px;padding-left:1em;padding-right:1em;"
+        <a class="navbar-brand" href="#" style="padding:4px;"
            (click)="showSource();">Source</a>
-        <a class="navbar-brand" href="#" style="font-size:24px;padding-left:1em;padding-right:1em;"
+        <a class="navbar-brand" href="#" style="padding:4px;"
            (click)="showCode();">Code</a>
-        <a class="navbar-brand" href="#" style="font-size:24px;padding-left:1em;padding-right:1em;"
+        <a class="navbar-brand" href="#" style="padding:4px;"
            (click)="showData();">Data</a>
-        <a class="navbar-brand" href="#" style="font-size:24px;padding-left:1em;padding-right:1em;"
+        <a class="navbar-brand col-auto" href="#" style="padding:4px;"
            (click)="showSimulation();">Simulation</a>
 
       </div>
     </nav>
+    <!--Data-->
     <ng-container *ngIf="component == 'data' || component == 'simulation'">
     <nav class="navbar navbar-light fixed-top"
-         style="clear:both;position: relative;margin-left:0;margin-right:0;background-color: white;">
-      <div class="container justify-content-center">
+         style="clear:both;position: relative;margin:0; padding: 0;background-color: white;">
+      <div class="container-lg">
         <ng-container *ngIf="component == 'data'">
-          <button class="btn" style="border:1px solid black;margin-right:16px;">Sort</button>
-          <button class="btn" style="border:1px solid black;">Search</button>
+          <div style="justify-content: center; justify-items: center; margin: auto; display:flex; padding-top:8px;">
+            <button class="btn" style="border:1px solid black;margin-right:16px;">Sort</button>
+            <button class="btn" style="border:1px solid black;">Search</button>
+            <input type="text" [(ngModel)]="term" (input)="search(term)" name="term" class="term"/>
+          </div>
+          <div class="container-fluid" style="border-top: 1px solid lightgray;margin: 8px 0 0 0;
+                  padding-top: 4px;padding-bottom:0;" >
+            <table style="width: 100%;margin: 0; padding:0;">
+              <thead>
+              <tr>
+                <th scope="col" style="left: 0;padding-left:0;">Index</th>
+                <th scope="col" style="width:100px;">Type</th>
+                <th scope="col" style="width:130px;">Name</th>
+                <th scope="col" style="width: 30px;right: 0;">Parent</th>
+              </tr>
+              </thead>
+            </table>
+          </div>
         </ng-container>
+        <!--Simulation-->
         <ng-container *ngIf="component == 'simulation'">
-          <button id="start" class="btn" style="border:1px solid black;margin-right:16px;"
-                  (click)="start()" [disabled]="!safeToStart">{{startButton}}</button>
-          <button id="cancelall" class="btn" style="border:1px solid black;margin-right:16px;"
-                  (click)="cancelAll()" [disabled]="!safeToCancel">Cancel All</button>
-          <button id="pauseall" class="btn" style="border:1px solid black;margin-right:16px;"
-                  (click)="pauseAll()" [disabled]="!safeToCancel">Pause All</button>
-          <select #portSelect (change)="setSelected(portSelect.value)"
-                  aria-label="Port"  class="btn" style="border:1px solid black;height:38px;">
-            <option disabled>Choose Port</option>
-            <!--            <option class="option" [value]="'any'">All Ports</option>-->
-            <!--          Showing all ports at the same time during simulation slows down the browser!-->
-            <ng-container *ngFor="let port of ports">
-              <option class="option" [value]="port.name">{{port.name}}</option>
-            </ng-container>
-          </select>
-          <br>
+          <div style="justify-content: center; justify-items: center; display:flex; margin: auto; padding-top:8px;">
+            <button id="start" class="btn" style="border:1px solid black;margin-right:16px;"
+                    (click)="start()" [disabled]="!safeToStart">{{startButton}}</button>
+            <button id="cancelall" class="btn" style="border:1px solid black;margin-right:16px;"
+                    (click)="cancelAll()" [disabled]="!safeToCancel">Cancel All</button>
+            <button id="pauseall" class="btn" style="border:1px solid black;margin-right:16px;"
+                    (click)="pauseAll()" [disabled]="!safeToCancel">Pause All</button>
+            <select #portSelect (change)="setSelected(portSelect.value)"
+                    aria-label="Port"  class="btn" style="border:1px solid black;height:38px;">
+              <option disabled>Choose Port</option>
+              <!--            <option class="option" [value]="'any'">All Ports</option>-->
+              <!--          Showing all ports at the same time during simulation slows down the browser!-->
+              <ng-container *ngFor="let port of ports">
+                <option class="option" [value]="port.name">{{port.name}}</option>
+              </ng-container>
+            </select>
+            <br>
+          </div>
+          <div class="container-lg" style="border-top: 1px solid lightgray;margin: 8px 0 0 0;
+                  padding-top: 4px;padding-bottom:0;">
+            <div class="row">
+              <div class="col col-3">
+                <div class="row">
+                  <div class="col">
+                    <strong>Ship</strong>
+                  </div>
+                  <div class="col col-push-2">
+                    <strong>Dock</strong>
+                  </div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="row">
+                  <div class="col-lg-6 col-md-4 col-sm-12">
+                    <strong>Jobs</strong>
+                  </div>
+                  <div class="col-lg-6 col-md-8 col-sm-12">
+                    <div class="row">
+                      <div class="col-3" style="padding: 1px 0 1px 16px;"><strong>Cancel</strong></div>
+                      <div class="col-2" style="padding: 1px;"><strong>Pause</strong></div>
+                      <div class="col-3" style="padding: 1px;"><strong>Progress</strong></div>
+                      <div class="col-3" style="padding: 1px;"><strong>Status</strong></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </ng-container>
       </div>
       <div class="container-fluid" id="warning" style="margin-top: 10px; justify-content: center;
@@ -59,154 +109,129 @@
 </div>
 
 <!--Data-->
-<ng-container *ngIf="component == 'data'">
-<!--Menu-->
-
+<ng-container *ngIf="component == 'data' ">
 <!--  Table-->
-  <div class="container-lg">
+  <div class="container-lg" id="everything">
   <table class="table">
-    <thead>
-      <tr>
-        <th scope="col">Index</th>
-        <th scope="col">Type</th>
-        <th scope="col">Name</th>
-        <th scope="col">Parent</th>
-      </tr>
-    </thead>
     <tbody>
-      <ng-container *ngFor="let key of data | keyvalue" style="list-style-type: none;">
+      <ng-container *ngFor="let key of data | keyvalue " style="list-style-type: none;">
         <tr>
-        <td>{{key.value.index}}<p style="color:blue;">{{key.value.info}}</p></td>
-        <td>{{key.value.type}}</td>
-        <td>{{key.value.name}}</td>
-        <td>{{key.value.parent}}</td>
+          <td>{{key.value.index}}<p style="color:blue;">{{key.value.info}}</p></td>
+          <td>{{key.value.type}}</td>
+          <td>{{key.value.name}}</td>
+          <td>{{key.value.parent}}</td>
         </tr>
-
       </ng-container>
     </tbody>
   </table>
-
   </div>
-
 </ng-container>
 
 <!--Simulation-->
 <ng-container *ngIf="component == 'simulation'" >
-<!--Menu-->
-  <div class="container-lg justify-content-center" style="z-index: 1;">
-    <div class="navbar navbar-light fixed-top"
-         style="clear:both;position: relative;margin-left:0;margin-right:0;">
-
-    </div>
-  </div>
 <!--Tables-->
-
   <ng-container *ngFor="let port of ports">
-    <div class="container-lg" id="{{port.name}}">
-      <h3>Port: {{port.name}}</h3>
+    <div class="container-lg" id="{{port.name}}" >
       <table class="table table-sm">
-        <thead>
-          <tr>
-            <th scope="col">Ship</th>
-            <th scope="col">Dock</th>
-            <th scope="col" style="width: 27%;">Jobs</th>
-            <th style="width:48%;">
-              <table class="table">
-                <tr>
-                  <th style="width:25%">Cancel</th>
-                  <th style="width:25%">Pause</th>
-                  <th style="width:25%">Progress</th>
-                  <th style="width:25%">Status</th>
-                </tr>
-              </table>
-            </th>
-          </tr>
-        </thead>
         <tbody>
-          <tr *ngFor="let ship of ships" scope="row">
+          <tr *ngFor="let ship of ships" style="border-bottom: 1px solid lightgray; padding:0;margin:0;">
             <ng-container *ngIf="ship.port === port.name">
-              <td>{{ship.name}}
-<!--                The status check is not working -->
-                <ng-container *ngIf="ship.shipStatus.toString() === 'DOCKING'">
-                  <p><button class="btn" style="border: 1px solid black;background-color: #fd4; margin-top:4px;"
-                  >WAITING TO DOCK</button></p>
-                </ng-container>
-                <ng-container *ngIf="ship.shipStatus.toString() === 'ASSIGNING'">
-                  <p><button class="btn" style="border: 1px solid black;background-color: orange; margin-top:4px;"
-                  >ASSIGNING DOCK</button></p>
-                </ng-container>
-                <ng-container *ngIf="ship.shipStatus.toString() === 'DOCKED'">
-                  <p><button class="btn" style="border: 1px solid black;background-color: #0275d8; margin-top:4px;"
-                  >DOCKED</button></p>
-                </ng-container>
-                <ng-container *ngIf="ship.shipStatus.toString() === 'DEPARTED'">
-                  <p><button class="btn" style="border: 1px solid black;background-color: gray; margin-top:4px;"
-                  >GONE</button></p>
-                </ng-container>
-              </td>
-              <td>{{ship.dock}}</td>
-              <td colspan="7">
-                <table class="table table-sm">
-                  <ng-container *ngFor="let job of ship.jobs">
-                    <tr>
-                      <td style="width: 36%">
-                        {{job.name}}
-                        <p style="color:blue;word-break: break-all">
-                          <strong>{{job.duration}}</strong>: {{job.requirements}}</p>
-                      </td>
-                      <td style="width: 16%">
-                        <button id="{{job.index}}c" (click)="cancel(job.index)" class="btn" style="border: 1px solid black;">Cancel</button>
-                      </td>
-                      <td style="width: 16%">
-                        <button id="{{job.index}}p" (click)="pause(job.index)" class="btn" style="border: 1px solid black;">Pause</button>
-                      </td>
-                      <td style="width: 16%">
-                        <div class="progress" style="height:34px;border: 1px solid black;margin-right:20%;
-                              padding:0;width:80%;position: relative;">
-                          <div class="progress-bar" role="progressbar"
-                              [style.width.%]="job.progress"
-                              aria-valuemin="0" aria-valuemax="100" style="text-align: center;"
-                              ></div>
-                          <div style="position: absolute;left: 0; right: 0; margin-left: auto; margin-right: auto;
-                                text-align: center;height: 34px; line-height: 34px;"
-                                >{{job.progress}}%</div>
-<!--                          attr.aria-valuenow="{{job.progress}}"-->
+            <div class="row" style="width:100%;margin: 0; margin-bottom:4px;">
+              <div class="col-3">
+                <div class="row">
+                  <div class="col">
+                    <p style="word-break: break-word;">{{ship.name}}</p>
+                    <ng-container *ngIf="ship.shipStatus.toString() === 'DOCKING'">
+                      <p><button class="btn" style="border: 1px solid black;background-color: #fd4; margin-top:4px;
+                            padding: 2px;">WAITING TO DOCK</button></p>
+                    </ng-container>
+                    <ng-container *ngIf="ship.shipStatus.toString() === 'ASSIGNING'">
+                      <p><button class="btn" style="border: 1px solid black;background-color: orange;
+                       margin-top:4px; padding: 2px;">ASSIGNING DOCK</button></p>
+                    </ng-container>
+                    <ng-container *ngIf="ship.shipStatus.toString() === 'DOCKED'">
+                      <p><button class="btn" style="border: 1px solid black;background-color: #0275d8; margin-top:4px;
+                            padding: 2px;">DOCKED</button></p>
+                    </ng-container>
+                    <ng-container *ngIf="ship.shipStatus.toString() === 'DEPARTED'">
+                      <p><button class="btn" style="border: 1px solid black;background-color: gray; margin-top:4px;
+                            padding: 2px;">GONE</button></p>
+                    </ng-container>
+                  </div>
+                  <div class="col col-push-2">
+                    {{ship.dock}}
+                  </div>
+
+                </div>
+              </div>
+              <div class="col">
+                <ng-container *ngFor="let job of ship.jobs">
+                  <div class="row">
+                    <div class="col">
+                      {{job.name}}
+                      <p style="color:blue;word-break: break-all; margin-bottom: 0;">
+                        <strong>{{job.duration}}</strong>: {{job.requirements}}</p>
+                    </div>
+                    <div class="col-12 col-md-8 col-lg-6 col-sm-12">
+                      <div class="row" style="padding:0;margin:0;margin-bottom: 1em; width:100%;">
+                        <div class="col-2" style="padding:0;margin:0 auto;">
+                          <button id="{{job.index}}c" (click)="cancel(job.index)" class="btn"
+                              style="border: 1px solid black;padding-left:4px; padding-right:4px;
+                                margin: 1px 0 1px 0;">Cancel</button>
                         </div>
-                      </td>
-                      <td style="width: 16%">
-                        <ng-container *ngIf="job.jobStatus.toString() === 'WAITING'">
-                          <button class="btn" style="border: 1px solid black;background-color: #fd4"
-                            >{{job.jobStatus}}</button>
-                        </ng-container>
-                        <ng-container *ngIf="job.jobStatus.toString() === 'PROCESSING'">
-                          <button class="btn" style="border: 1px solid black;background-color: #0275d8"
-                          >{{job.jobStatus}}</button>
-                        </ng-container>
-                        <ng-container *ngIf="job.jobStatus.toString() === 'PAUSED'">
-                          <button class="btn" style="border: 1px solid black;background-color: orange"
-                          >{{job.jobStatus}}</button>
-                        </ng-container>
-                        <ng-container *ngIf="job.jobStatus.toString() === 'UNAVAILABLE'">
-                          <button class="btn" style="border: 1px solid black;background-color: black;
-                            color: white;">NO WORKERS</button>
-                        </ng-container>
-                        <ng-container *ngIf="job.jobStatus.toString() === 'CANCELED'">
-                          <button class="btn" style="border: 1px solid black;background-color: red"
-                          >{{job.jobStatus}}</button>
-                        </ng-container>
-                        <ng-container *ngIf="job.jobStatus.toString() === 'FINISHED'">
-                          <button class="btn" style="border: 1px solid black;background-color: gray"
-                          >{{job.jobStatus}}</button>
-                        </ng-container>
-                      </td>
-                    </tr>
-                  </ng-container>
-                </table>
-              </td>
+                        <div class="col-2" style="padding:0;margin:0 auto;">
+                          <button id="{{job.index}}p" (click)="pause(job.index)" class="btn"
+                              style="border: 1px solid black;padding-left: 4px; padding-right: 4px;
+                                margin: 1px 0 1px 0;">Pause</button>
+                        </div>
+                        <div class="col-3" style="margin:1px 0;padding:0;">
+                          <div class="progress" style="height:38px; width: 100%;
+                              border: 1px solid black;padding:0;position: relative;">
+                            <div class="progress-bar" role="progressbar"
+                                 [style.width.%]="job.progress"
+                                 aria-valuemin="0" aria-valuemax="100" style="text-align: center;"
+                            ></div>
+                            <div style="position: absolute; left: 0; right: 0;
+                                text-align: center;height: 34px; line-height: 34px;"
+                            >{{job.progress}}%</div>
+                            <!--                          attr.aria-valuenow="{{job.progress}}"-->
+                          </div>
+                        </div>
+                        <div class="col-4" style="margin: 1px 0px 1px 0px;">
+                          <ng-container *ngIf="job.jobStatus.toString() === 'WAITING'">
+                            <button class="btn" style="border: 1px solid black;background-color: #fd4;
+                                padding-right:4px;padding-left:4px;">{{job.jobStatus}}</button>
+                          </ng-container>
+                          <ng-container *ngIf="job.jobStatus.toString() === 'PROCESSING'">
+                            <button class="btn" style="border: 1px solid black;background-color: #0275d8;
+                                padding-right:2px;padding-left:2px;">{{job.jobStatus}}</button>
+                          </ng-container>
+                          <ng-container *ngIf="job.jobStatus.toString() === 'PAUSED'">
+                            <button class="btn" style="border: 1px solid black;background-color: orange;
+                                padding-right:2px;padding-left:2px;">{{job.jobStatus}}</button>
+                          </ng-container>
+                          <ng-container *ngIf="job.jobStatus.toString() === 'UNAVAILABLE'">
+                            <button class="btn" style="border: 1px solid black;background-color: black;
+                            color: white;padding-right:2px;padding-left:2px;">NO WORKERS</button>
+                          </ng-container>
+                          <ng-container *ngIf="job.jobStatus.toString() === 'CANCELED'">
+                            <button class="btn" style="border: 1px solid black;background-color: red;
+                                padding-right:2px;padding-left:2px;">{{job.jobStatus}}</button>
+                          </ng-container>
+                          <ng-container *ngIf="job.jobStatus.toString() === 'FINISHED'">
+                            <button class="btn" style="border: 1px solid black;background-color: gray;
+                                padding-right:2px;padding-left:2px;">{{job.jobStatus}}</button>
+                          </ng-container>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </ng-container>
+              </div>
+            </div>
             </ng-container>
           </tr>
 
-          <tr>
         </tbody>
       </table>
 
@@ -369,11 +394,15 @@
 </ng-container>
 
 <ng-container *ngIf="component == 'source'" >
-  <pre id="output"></pre>
+  <div class="container-lg">
+    <pre id="output"></pre>
+  </div>
 </ng-container>
 
 <ng-container *ngIf="component == 'code'" >
-  <a href="#">GitHub</a>
+  <div class="container-lg">
+    <a href="https://github.com/tiagofdeveloper/seaport.git">GitHub</a>
+  </div>
 </ng-container>
 
 <!--

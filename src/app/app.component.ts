@@ -9,7 +9,6 @@ import {Thing} from "./thing";
 import {Ship} from "./ship";
 import {Job} from "./job";
 import {Status} from "./status.enum";
-import {ActivatedRoute, Router} from "@angular/router";
 
 
 @Component({
@@ -170,7 +169,6 @@ export class AppComponent {
   // Yay, it's working, thanks StackOverflow!
   // Change which ports to display during simulation
   public setSelected(name: string) : void {
-
     this.ports.forEach(value => {
       const port = document.getElementById(value.name);
       //if (name === "any" || name === value.name) { In case I want to show all ports at the same time.
@@ -194,11 +192,14 @@ export class AppComponent {
     this.safeToStart = false;
     if (this.startButton === "Reload") {
 
+
+
+      location.reload();
+      await this.delay(1);
       if (typeof document.getElementById('cancelall') != null) {
         document.getElementById('cancelall')!.style.backgroundColor = 'white';
       }
-      await this.delay(1);
-      window.location.reload();
+      this.component = 'simulation';
     }
     this.startResponse$ = this.controller.start$()
       .pipe(
@@ -372,6 +373,22 @@ export class AppComponent {
     // How to access map value attributes:
     //console.log(this.data.get("20000").name);
 
+  }
+
+  public filter( event: any ) {
+    // @ts-ignore
+    let rows = document.getElementById('everything');
+    let val = event.target.value.replace(/ +/g, ' ').toLowerCase();
+    // @ts-ignore
+    rows.show().filter( function() {
+      let text = event.target.value.replace(/\s+/g, ' ').toLowerCase();
+      return !~text.indexOf(val);
+    })
+  }
+
+  public term = '';
+  public search(value: string) : void {
+    //this.data = this.data.filter((val) => val.name.toLowerCase().includes(value));
   }
 
 }
