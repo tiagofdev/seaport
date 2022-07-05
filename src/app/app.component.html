@@ -31,15 +31,29 @@
       <div class="container-lg">
         <ng-container *ngIf="component == 'data'">
           <div style="justify-content: center; justify-items: center; margin: auto; display:flex; padding-top:8px;">
-            <button class="btn" style="border:1px solid black;margin-right:16px;">Sort</button>
-            <button class="btn" style="border:1px solid black;">Search</button>
-            <input type="text" [(ngModel)]="term" (input)="search(term)" name="term" class="term"/>
+            <div class="dropdown">
+              <button class="btn dropdown-toggle" type="button" id="dropdownMenu2"
+                      data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                      style="border:1px solid black;margin-right:16px;">
+                Sort
+              </button>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                <button class="dropdown-item" type="button" (click)="sort(0);">Name</button>
+                <button class="dropdown-item" type="button" (click)="sort(1);">Index</button>
+                <button class="dropdown-item" type="button" (click)="sort(2);">Parent</button>
+              </div>
+            </div>
+<!--            style="border:1px solid black;margin-right:16px;"-->
+
+            <input type="text" [(ngModel)]="term" (input)="search(term)" name="term" class="term"
+              placeholder="Name, Index or Parent" />
+            <button class="btn" style="border:1px solid black;margin-left:4px;">Search</button>
           </div>
           <div class="container-fluid" style="border-top: 1px solid lightgray;margin: 8px 0 0 0;
                   padding-top: 4px;padding-bottom:0;" >
             <table style="width: 100%;margin: 0; padding:0;">
               <thead>
-              <tr>
+              <tr style="width: 100%;">
                 <th scope="col" style="left: 0;padding-left:0;">Index</th>
                 <th scope="col" style="width:100px;">Type</th>
                 <th scope="col" style="width:130px;">Name</th>
@@ -114,12 +128,22 @@
   <div class="container-lg" id="everything">
   <table class="table">
     <tbody>
-      <ng-container *ngFor="let key of data | keyvalue " style="list-style-type: none;">
+    <!--This is how to iterate through a Map in Angular.-->
+      <!--<ng-container *ngFor="let key of data | keyvalue " style="list-style-type: none;">
         <tr>
           <td>{{key.value.index}}<p style="color:blue;">{{key.value.info}}</p></td>
           <td>{{key.value.type}}</td>
           <td>{{key.value.name}}</td>
           <td>{{key.value.parent}}</td>
+        </tr>
+      </ng-container>-->
+    <!--I decided to convert Map to Array as it is not possible to filter results in a Map.-->
+      <ng-container *ngFor="let key of data " style="list-style-type: none;">
+        <tr style="width:100%;">
+          <td>{{key.index}}<p style="color:blue;">{{key.info}}</p></td>
+          <td style="width:100px;">{{key.type}}</td>
+          <td style="width:130px;">{{key.name}}</td>
+          <td style="width:30px;">{{key.parent}}</td>
         </tr>
       </ng-container>
     </tbody>
@@ -175,14 +199,22 @@
                     <div class="col-12 col-md-8 col-lg-6 col-sm-12">
                       <div class="row" style="padding:0;margin:0;margin-bottom: 1em; width:100%;">
                         <div class="col-2" style="padding:0;margin:0 auto;">
-                          <button id="{{job.index}}c" (click)="cancel(job.index)" class="btn"
+                          <button (click)="cancel(job,ship.shipStatus)" class="btn"
                               style="border: 1px solid black;padding-left:4px; padding-right:4px;
                                 margin: 1px 0 1px 0;">Cancel</button>
                         </div>
                         <div class="col-2" style="padding:0;margin:0 auto;">
-                          <button id="{{job.index}}p" (click)="pause(job.index)" class="btn"
-                              style="border: 1px solid black;padding-left: 4px; padding-right: 4px;
+                          <ng-container *ngIf="job.jobStatus.toString() != 'PAUSED'">
+                            <button (click)="pause(job, ship.shipStatus)" class="btn"
+                                    style="border: 1px solid black;padding-left: 4px; padding-right: 4px;
                                 margin: 1px 0 1px 0;">Pause</button>
+                          </ng-container>
+                          <ng-container *ngIf="job.jobStatus.toString() === 'PAUSED'">
+                            <button (click)="pause(job, ship.shipStatus)" class="btn"
+                                    style="border: 1px solid black;padding-left: 4px; padding-right: 4px;
+                                margin: 1px 0 1px 0;background-color:orange;">Go on</button>
+                          </ng-container>
+
                         </div>
                         <div class="col-3" style="margin:1px 0;padding:0;">
                           <div class="progress" style="height:38px; width: 100%;
@@ -380,7 +412,6 @@
           <br>(Mod)Automatically create standard jobs of 20s for ships that do not have any jobs</li>
         <li class="list-group-item">Use the synchronize directive to avoid race conditions and ensure that a dock is
           performing the jobs for only one ship at a time.</li>
-
       </ul>
     </div>
 
@@ -388,9 +419,7 @@
       <h3>UML</h3>
       <img src="../assets/uml.jpg" style="max-width: 100%;">
     </div>
-
   </div>
-
 </ng-container>
 
 <ng-container *ngIf="component == 'source'" >

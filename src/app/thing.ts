@@ -3,6 +3,6 @@ export class Thing {
   public type : string = "";
   public name : string = "";
   public parent : number = 0;
-  public info : string = "";
+  public info : string = " ";
 
 }

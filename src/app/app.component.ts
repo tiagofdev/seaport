@@ -39,12 +39,12 @@ export class AppComponent {
 
 
   // Data Structrues
-  public data : Map<string, any>;
+  public data : any[] = [];
+  public entries : any[] = [];
   public status : Map<string, Ship>;
 
   public ships: Ship[] = [];
   public ports: Thing[] = [];
-  public jobs: Job[] = [];
   public selectedPort: string;
 
   // UI
@@ -55,7 +55,6 @@ export class AppComponent {
 
 
   constructor(private controller: Controller) {
-
     this.startResponse$ = new Observable<AppState<Response>>();
     //this.downloadResponse$ = new Observable<Response>();
     this.status$ = new Observable<Response>();
@@ -64,7 +63,7 @@ export class AppComponent {
     this.selectedPort = "";
     this.dataSubscriber = new Map<number, any>();
 
-    this.data = new Map<string, any>();
+    //this.data = new Map<string, any>();
     //this.data = new Map(Object.entries(this.dataSubscriber));
 
     this.component = 'description';
@@ -88,46 +87,53 @@ export class AppComponent {
       return new Promise( resolve => setTimeout(resolve, ms) );
     }*/
     await this.delay(1);
-
-    // I have to create a copy of the map in order to filter its results and this does not work in the constructor
+    // this.dataSubscriber is a map that subscribes to the HashMap received from the server
+    // It does not work properly. It does not filter results, nor can I extract a set of keys or values from it.
+    // In case I want to use a Map as a data structure in this case, I have to create a copy of this map using
+    // the constructor of the Map class with the word new; eg: new Map().
     // This has to be executed after the promise/delay
     // When this new map is created from the constructor, the indexes are converted from numbers to strings -.-'
-    this.data = new Map(Object.entries(this.dataSubscriber));
+    // Eg.:
+    // let data = new Map(Object.entries(this.dataSubscriber)); //Notice: .entries as opposed to .values
+    // this.entries = Array.from(data.values());
+    // console.log("entries count: ", this.entries.length);
+
+    // I gave up on using Maps and decided to use an array.
+    // Fortunately, I don't have to create another copy of the map, as I was able to retrieve the values with
+    // Object.values()
+    this.entries = Array.from(Object.values(this.dataSubscriber));
+    this.data = this.entries;
+    console.log("data count: ", this.data.length);
 
     // Since data map comes from the server in numerical order, it is safe to assign ports, then ships,
     // then jobs sequentially in this loop
-    this.data.forEach((value: any, key: string) => {
-      let keyN : number = +key;
-      if (keyN >= 10000 && keyN < 20000) {
+    this.entries.forEach( (value: any) => {
+      if (value.index >= 10000 && value.index < 20000) {
         this.ports.push(value);
       }
-      else if (keyN >= 30000 && keyN < 50000) {
+      else if (value.index >= 30000 && value.index < 50000) {
         value.jobs = [];
         let ship : Ship;
         ship = value;
         if (value.dock === "Any: ") {
-          let index = value.parent;
-          ship.port = this.data.get(index.toString()).name;
+          ship.port = this.entries.find( item => item.index == value.parent ).name;
         }
         else {
-          let dock = value.parent;
-          let port = this.data.get(dock.toString()).parent;
-          ship.port = this.data.get(port.toString()).name;
+          let dock = this.entries.find( item => item.index == value.parent );
+          ship.port = this.entries.find( item => item.index == dock.parent ).name;
         }
         this.ships.push(ship);
       }
-      else if (keyN >= 60000) {
+      else if (value.index >= 60000) {
         // This local ship is a reference to the value in the map, no need to push an update back into it.
         //let ship = this.data.get(value.parent.toString());
         let ship : Ship;
-
         // @ts-ignore
-        ship = this.ships.find(element => element.index == value.parent.toString());
-
+        ship = this.ships.find(element => element.index == value.parent);
         ship.jobs.push(value as Job);
-        this.jobs.push(value as Job);
       }
     });
+
 
     this.ports.sort((a,b) => (a.index < b.index) ? 1 : -1);
     this.ships.sort((a,b) => (a.parent < b.parent) ? 1 : -1);
@@ -147,7 +153,6 @@ export class AppComponent {
     // Then I gotta add a delay to call the function and change the elements
     await this.delay(1);
     this.setSelected(this.ports[0].name);
-
   }
 
   public showDescription() : void {
@@ -191,9 +196,6 @@ export class AppComponent {
   public async start(): Promise<void> {
     this.safeToStart = false;
     if (this.startButton === "Reload") {
-
-
-
       location.reload();
       await this.delay(1);
       if (typeof document.getElementById('cancelall') != null) {
@@ -216,13 +218,14 @@ export class AppComponent {
     while( this.processing && this.continue) {
       if (this.goFlag) {
         this.status$ = this.controller.getStatus$();
+        // Creating a new map for every update is still very burdensome
         // @ts-ignore
         this.status$.subscribe(response => this.status = new Map(Object.entries(response.data.ships)) );
-        await this.delay(1000);
+        await this.delay(1);
 
         this.getStatus();
       }
-      await this.delay(500);
+      await this.delay(400);
     }
     this.safeToStart = true;
     this.startButton = "Reload";
@@ -238,6 +241,20 @@ export class AppComponent {
       }
       ship.shipStatus = mapShip!.shipStatus;
       ship.jobs = mapShip!.jobs;
+    }
+  }
+
+  public cancel(job: Job, shipStatus: Status) : void {
+    if (shipStatus.toString() != "DEPARTED" && job.jobStatus.toString() != "FINISHED" &&
+      job.jobStatus.toString() != "UNAVAILABLE") {
+      this.controller.cancel$(job.index).subscribe();
+    }
+  }
+
+  public pause(job: Job, shipStatus: Status) : void {
+    if (shipStatus.toString() != "DEPARTED" && job.jobStatus.toString() != "FINISHED" &&
+      job.jobStatus.toString() != "UNAVAILABLE") {
+      this.controller.pause$(job.index).subscribe();
     }
   }
 
@@ -273,18 +290,38 @@ export class AppComponent {
     }
   }
 
-  public cancel(job: number) : void {
-    let id : string = job + 'c';
-    document.getElementById(id)!.style.backgroundColor = 'red';
-    this.controller.cancel$(job).subscribe();
+  public filter( event: any ) {
+    // @ts-ignore
+    let rows = document.getElementById('everything');
+    let val = event.target.value.replace(/ +/g, ' ').toLowerCase();
+    // @ts-ignore
+    rows.show().filter( function() {
+      let text = event.target.value.replace(/\s+/g, ' ').toLowerCase();
+      return !~text.indexOf(val);
+    })
   }
 
-  public pause(job: number) : void {
-    let id : string = job + 'p';
-    document.getElementById(id)!.style.backgroundColor = 'orange';
-    this.controller.pause$(job).subscribe();
+  public term = '';
+  public search(term: string) : void {
+    if (/^\d+$/.test(term)) {
+      this.data = this.entries.filter((value) => value.index.toString().includes(term) ||
+        value.parent.toString().includes(term));
+    }
+    else
+      this.data = this.entries.filter((value) => value.name.replace(/\s+/g, ' ').toLowerCase().includes(term.toLowerCase()));
   }
-    // Before overhaul
+
+  public sort( option: number ) : void {
+    if (option == 0)
+      this.data = this.entries.sort( (a,b) => (a.name > b.name) ? 1 : -1 );
+    else if (option == 1)
+      this.data = this.entries.sort( (a,b) => (a.index > b.index) ? 1 : -1 );
+    else
+      this.data = this.entries.sort( (a,b) => (a.parent > b.parent) ? 1 : -1 );
+  }
+}
+
+// Before overhaul
 
 /*
   public async process(): Promise<void> {
@@ -360,35 +397,12 @@ export class AppComponent {
   }
   */
 
-  // FOR loop for maps
-  /*for (const [key, value] of this.status) {
-    if (value.shipStatus != Status.DEPARTED) {
-      this.processing = true;
-      break;
-    }
-  }*/
-
-  public testFunction() : void {
-
-    // How to access map value attributes:
-    //console.log(this.data.get("20000").name);
-
+// FOR loop for maps
+/*for (const [key, value] of this.status) {
+  if (value.shipStatus != Status.DEPARTED) {
+    this.processing = true;
+    break;
   }
-
-  public filter( event: any ) {
-    // @ts-ignore
-    let rows = document.getElementById('everything');
-    let val = event.target.value.replace(/ +/g, ' ').toLowerCase();
-    // @ts-ignore
-    rows.show().filter( function() {
-      let text = event.target.value.replace(/\s+/g, ' ').toLowerCase();
-      return !~text.indexOf(val);
-    })
-  }
-
-  public term = '';
-  public search(value: string) : void {
-    //this.data = this.data.filter((val) => val.name.toLowerCase().includes(value));
-  }
-
-}
+}*/
+// How to access map value attributes:
+//console.log(this.data.get("20000").name);
