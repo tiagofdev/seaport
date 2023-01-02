@@ -1,3 +1,5 @@
 # seaport
 Multithreading Seaports Simulation
-Java/Angular/Bootstrap
+Java - Spring Boot
+Angular - Typescript
+Bootstrap
